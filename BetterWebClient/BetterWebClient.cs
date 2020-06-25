@@ -15,18 +15,18 @@ namespace unpaid
     public class BetterWebClient
     {
         private HttpClient Client;
-        private int TotalDownloads;
 
         public class Response
         {
+            public HttpStatusCode StatusCode;
             public Dictionary<string, string> Headers;
-            public string Data;
+            public dynamic Data;
             public string Error;
         }
 
         public class DownloadProgress
         {
-            public int DownloadID;
+            public string DownloadURL;
             public string DownloadPath;
 
             public int BytesDownloaded;
@@ -95,11 +95,13 @@ namespace unpaid
                     {
                         return new Response
                         {
-                            Error = $"ERROR: {URL}: {ResponseMessage.StatusCode} - {ResponseMessage.ReasonPhrase}"
+                            StatusCode = ResponseMessage.StatusCode,
+                            Error = ResponseMessage.ReasonPhrase
                         };
                     }
                     return new Response
                     {
+                        StatusCode = ResponseMessage.StatusCode,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
                         Error = String.Empty
@@ -149,11 +151,13 @@ namespace unpaid
                     {
                         return new Response
                         {
-                            Error = $"ERROR: {URL}: {ResponseMessage.StatusCode} - {ResponseMessage.ReasonPhrase}"
+                            StatusCode = ResponseMessage.StatusCode,
+                            Error = ResponseMessage.ReasonPhrase
                         };
                     }
                     return new Response
                     {
+                        StatusCode = ResponseMessage.StatusCode,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = await ResponseMessage.Content.ReadAsStringAsync(),
                         Error = String.Empty
@@ -204,13 +208,13 @@ namespace unpaid
                     {
                         return new Response
                         {
-                            Error = $"ERROR: {URL}: {ResponseMessage.StatusCode} - {ResponseMessage.ReasonPhrase}"
+                            StatusCode = ResponseMessage.StatusCode,
+                            Error = ResponseMessage.ReasonPhrase
                         };
                     }
 
                     long ContentLength = 0;
-                    int CurrentDownloadID = TotalDownloads++;
-                    if (ResponseMessage.Content.Headers.TryGetValues("Content-Length", out IEnumerable<String> Values))
+                    if (ResponseMessage.Content.Headers.TryGetValues("Content-Length", out IEnumerable<string> Values))
                     {
                         Int64.TryParse(Values.First(), out ContentLength);
                     }
@@ -242,7 +246,7 @@ namespace unpaid
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
                                 OnDownloadProgressChanged(new DownloadProgress
                                 {
-                                    DownloadID = CurrentDownloadID,
+                                    DownloadURL = URL,
                                     DownloadPath = FilePath,
                                     TotalBytesDownloaded = TotalNumberOfBytesRead,
                                     ContentLength = ContentLength,
@@ -254,6 +258,7 @@ namespace unpaid
 
                         return new Response
                         {
+                            StatusCode = ResponseMessage.StatusCode,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
                             Error = String.Empty
@@ -305,12 +310,12 @@ namespace unpaid
                     {
                         return new Response
                         {
-                            Error = $"ERROR: {URL}: {ResponseMessage.StatusCode} - {ResponseMessage.ReasonPhrase}"
+                            StatusCode = ResponseMessage.StatusCode,
+                            Error = ResponseMessage.ReasonPhrase
                         };
                     }
 
                     long ContentLength = 0;
-                    int CurrentDownloadID = TotalDownloads++;
                     if (ResponseMessage.Content.Headers.TryGetValues("Content-Length", out IEnumerable<String> Values))
                     {
                         Int64.TryParse(Values.First(), out ContentLength);
@@ -343,7 +348,7 @@ namespace unpaid
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
                                 OnDownloadProgressChanged(new DownloadProgress
                                 {
-                                    DownloadID = CurrentDownloadID,
+                                    DownloadURL = URL,
                                     DownloadPath = FilePath,
                                     TotalBytesDownloaded = TotalNumberOfBytesRead,
                                     ContentLength = ContentLength,
@@ -355,6 +360,7 @@ namespace unpaid
 
                         return new Response
                         {
+                            StatusCode = ResponseMessage.StatusCode,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
                             Error = String.Empty

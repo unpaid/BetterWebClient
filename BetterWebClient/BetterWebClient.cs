@@ -15,6 +15,7 @@ namespace unpaid
     public class BetterWebClient
     {
         private HttpClient Client;
+        private CookieContainer Cookies;
 
         public class Response
         {
@@ -36,15 +37,16 @@ namespace unpaid
         public delegate void DownloadProgressChanged(DownloadProgress Progress);
         public event DownloadProgressChanged DownloadProgressChangedEvent;
 
-        public BetterWebClient(CookieContainer Cookies = null)
+        public BetterWebClient()
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
+            Cookies = new CookieContainer();
             Client = new HttpClient(new WebRequestHandler
             {
                 CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable),
-                CookieContainer = Cookies ?? new CookieContainer()
+                CookieContainer = Cookies
             });
 
             Client.Timeout = Timeout.InfiniteTimeSpan;
@@ -52,6 +54,11 @@ namespace unpaid
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en-AU,en-GB,en-US,en");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36");
+        }
+
+        public void AddCookie(string Name, string Value, string Domain)
+        {
+            Cookies.Add(new Cookie(Name, Value, String.Empty, Domain));
         }
 
         public Response Request(string URL, HttpMethod Method, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null)

@@ -34,8 +34,6 @@ namespace unpaid
             public long ContentLength;
             public long TotalBytesDownloaded;
         }
-        public delegate void DownloadProgressChanged(DownloadProgress Progress);
-        public event DownloadProgressChanged DownloadProgressChangedEvent;
 
         public BetterWebClient()
         {
@@ -173,7 +171,7 @@ namespace unpaid
             }
         }
 
-        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null)
+        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null, Action<DownloadProgress> ProgressCallback = null)
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
@@ -251,7 +249,7 @@ namespace unpaid
                                 FileStream.Write(Buffer, 0, NumberOfBytesRead);
 
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
-                                OnDownloadProgressChanged(new DownloadProgress
+                                ProgressCallback?.Invoke(new DownloadProgress
                                 {
                                     DownloadURL = URL,
                                     DownloadPath = FilePath,
@@ -275,7 +273,7 @@ namespace unpaid
             }
         }
 
-        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null)
+        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null, Action<DownloadProgress> ProgressCallback = null)
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
@@ -353,7 +351,7 @@ namespace unpaid
                                 await FileStream.WriteAsync(Buffer, 0, NumberOfBytesRead);
 
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
-                                OnDownloadProgressChanged(new DownloadProgress
+                                ProgressCallback?.Invoke(new DownloadProgress
                                 {
                                     DownloadURL = URL,
                                     DownloadPath = FilePath,
@@ -375,11 +373,6 @@ namespace unpaid
                     }
                 }
             }
-        }
-
-        private void OnDownloadProgressChanged(DownloadProgress Progress)
-        {
-            DownloadProgressChangedEvent?.Invoke(Progress);
         }
     }
 }

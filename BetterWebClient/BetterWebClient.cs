@@ -16,6 +16,8 @@ namespace unpaid
     {
         private HttpClient Client;
         private CookieContainer Cookies;
+        // 1 Mebibyte Max Chunk Size
+        private readonly int MaxChunkSize = (int)Math.Pow(2, 20);
 
         public class Response
         {
@@ -236,8 +238,6 @@ namespace unpaid
                             File.Delete(FilePath);
                         }
 
-                        // 1 Megabyte Max Chunk Size
-                        int MaxChunkSize = 1 * 1000 * 1000;
                         byte[] Buffer = new byte[MaxChunkSize];
                         long TotalNumberOfBytesRead = 0;
 
@@ -338,8 +338,6 @@ namespace unpaid
                             File.Delete(FilePath);
                         }
 
-                        // 1 Megabyte Max Chunk Size
-                        int MaxChunkSize = 1 * 1000 * 1000;
                         byte[] Buffer = new byte[MaxChunkSize];
                         long TotalNumberOfBytesRead = 0;
 

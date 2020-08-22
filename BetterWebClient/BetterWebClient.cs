@@ -41,6 +41,7 @@ namespace unpaid
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.DefaultConnectionLimit = Int32.MaxValue;
 
             Cookies = new CookieContainer();
             Client = new HttpClient(new WebRequestHandler

@@ -47,7 +47,8 @@ namespace unpaid
             Client = new HttpClient(new WebRequestHandler
             {
                 CachePolicy = new RequestCachePolicy(RequestCacheLevel.BypassCache),
-                CookieContainer = Cookies
+                CookieContainer = Cookies,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
             Client.Timeout = Timeout.InfiniteTimeSpan;

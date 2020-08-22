@@ -45,7 +45,7 @@ namespace unpaid
             Cookies = new CookieContainer();
             Client = new HttpClient(new WebRequestHandler
             {
-                CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable),
+                CachePolicy = new RequestCachePolicy(RequestCacheLevel.BypassCache),
                 CookieContainer = Cookies
             });
 

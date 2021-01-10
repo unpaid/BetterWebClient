@@ -63,28 +63,20 @@ namespace unpaid
             Cookies.Add(new Cookie(Name, Value, String.Empty, Domain));
         }
 
-        public Response Request(string URL, HttpMethod Method, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null)
+        public Response Request(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
         {
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Method == HttpMethod.Get)
+                if (Params != null)
                 {
-                    if (Data != null)
-                    {
-                        NameValueCollection Collection = HttpUtility.ParseQueryString(String.Empty);
-                        foreach (KeyValuePair<string, string> Pair in Data)
-                        {
-                            Collection[Pair.Key] = Pair.Value;
-                        }
-
-                        URL = $"{URL}?{Collection.ToString()}";
-                    }
+                    URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
                 }
-                else if (Method == HttpMethod.Post)
+
+                if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
                     {
-                        RequestMessage.Content = new FormUrlEncodedContent(Data);
+                        RequestMessage.Content = Data;
                     }
                 }
 
@@ -119,28 +111,20 @@ namespace unpaid
             }
         }
 
-        public async Task<Response> RequestAsync(string URL, HttpMethod Method, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null)
+        public async Task<Response> RequestAsync(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
         {
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Method == HttpMethod.Get)
+                if (Params != null)
                 {
-                    if (Data != null)
-                    {
-                        NameValueCollection Collection = HttpUtility.ParseQueryString(String.Empty);
-                        foreach (KeyValuePair<string, string> Pair in Data)
-                        {
-                            Collection[Pair.Key] = Pair.Value;
-                        }
-
-                        URL = $"{URL}?{Collection.ToString()}";
-                    }
+                    URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
                 }
-                else if (Method == HttpMethod.Post)
+
+                if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
                     {
-                        RequestMessage.Content = new FormUrlEncodedContent(Data);
+                        RequestMessage.Content = Data;
                     }
                 }
 
@@ -175,29 +159,21 @@ namespace unpaid
             }
         }
 
-        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null, Action<DownloadProgress> ProgressCallback = null)
+        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null)
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Method == HttpMethod.Get)
+                if (Params != null)
                 {
-                    if (Data != null)
-                    {
-                        NameValueCollection Collection = HttpUtility.ParseQueryString(String.Empty);
-                        foreach (KeyValuePair<string, string> Pair in Data)
-                        {
-                            Collection[Pair.Key] = Pair.Value;
-                        }
-
-                        URL = $"{URL}?{Collection.ToString()}";
-                    }
+                    URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
                 }
-                else if (Method == HttpMethod.Post)
+
+                if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
                     {
-                        RequestMessage.Content = new FormUrlEncodedContent(Data);
+                        RequestMessage.Content = Data;
                     }
                 }
 
@@ -275,29 +251,21 @@ namespace unpaid
             }
         }
 
-        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, Dictionary<string, string> Data = null, Dictionary<string, string> Headers = null, Action<DownloadProgress> ProgressCallback = null)
+        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null)
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Method == HttpMethod.Get)
+                if (Params != null)
                 {
-                    if (Data != null)
-                    {
-                        NameValueCollection Collection = HttpUtility.ParseQueryString(String.Empty);
-                        foreach (KeyValuePair<string, string> Pair in Data)
-                        {
-                            Collection[Pair.Key] = Pair.Value;
-                        }
-
-                        URL = $"{URL}?{Collection.ToString()}";
-                    }
+                    URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
                 }
-                else if (Method == HttpMethod.Post)
+
+                if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
                     {
-                        RequestMessage.Content = new FormUrlEncodedContent(Data);
+                        RequestMessage.Content = Data;
                     }
                 }
 

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace unpaid
 {
@@ -159,9 +158,13 @@ namespace unpaid
             }
         }
 
-        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null)
+        public Response DownloadFile(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
+            string FolderPath = Path.GetDirectoryName(FilePath);
+            if (!Directory.Exists(FolderPath))
+                Directory.CreateDirectory(FolderPath);
+
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
                 if (Params != null)
@@ -187,6 +190,13 @@ namespace unpaid
                     }
                 }
 
+                long FileSize = 0;
+                if (File.Exists(FilePath))
+                {
+                    FileSize = new FileInfo(FilePath).Length;
+                    RequestMessage.Headers.Range = new RangeHeaderValue(FileSize, null);
+                }
+
                 using (HttpResponseMessage ResponseMessage = Client.SendAsync(RequestMessage, HttpCompletionOption.ResponseHeadersRead).Result)
                 {
                     if (!ResponseMessage.IsSuccessStatusCode)
@@ -203,23 +213,14 @@ namespace unpaid
                     {
                         Int64.TryParse(Values.First(), out ContentLength);
                     }
+                    ContentLength += FileSize;
 
                     using (Stream ContentStream = ResponseMessage.Content.ReadAsStreamAsync().Result)
                     {
-                        string FolderPath = Path.GetDirectoryName(FilePath);
-                        if (!Directory.Exists(FolderPath))
-                        {
-                            Directory.CreateDirectory(FolderPath);
-                        }
-                        if (File.Exists(FilePath))
-                        {
-                            File.Delete(FilePath);
-                        }
-
                         byte[] Buffer = new byte[MaxChunkSize];
-                        long TotalNumberOfBytesRead = 0;
+                        long TotalNumberOfBytesRead = 0 + FileSize;
 
-                        using (FileStream FileStream = File.Create(FilePath))
+                        using (FileStream FileStream = File.Open(FilePath, FileMode.Append | FileMode.OpenOrCreate, FileAccess.Write))
                         {
                             int NumberOfBytesRead = ContentStream.Read(Buffer, 0, Buffer.Length);
                             do
@@ -236,6 +237,14 @@ namespace unpaid
                                     BytesDownloaded = NumberOfBytesRead
                                 });
 
+                                if (Token.IsCancellationRequested)
+                                {
+                                    return new Response
+                                    {
+                                        Error = "Cancelled"
+                                    };
+                                }
+
                             } while ((NumberOfBytesRead = ContentStream.Read(Buffer, 0, Buffer.Length)) != 0);
                         }
 
@@ -251,9 +260,13 @@ namespace unpaid
             }
         }
 
-        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null)
+        public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
             FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
+            string FolderPath = Path.GetDirectoryName(FilePath);
+            if (!Directory.Exists(FolderPath))
+                Directory.CreateDirectory(FolderPath);
+
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
                 if (Params != null)
@@ -279,6 +292,13 @@ namespace unpaid
                     }
                 }
 
+                long FileSize = 0;
+                if (File.Exists(FilePath))
+                {
+                    FileSize = new FileInfo(FilePath).Length;
+                    RequestMessage.Headers.Range = new RangeHeaderValue(FileSize, null);
+                }
+
                 using (HttpResponseMessage ResponseMessage = await Client.SendAsync(RequestMessage, HttpCompletionOption.ResponseHeadersRead))
                 {
                     if (!ResponseMessage.IsSuccessStatusCode)
@@ -295,23 +315,14 @@ namespace unpaid
                     {
                         Int64.TryParse(Values.First(), out ContentLength);
                     }
+                    ContentLength += FileSize;
 
                     using (Stream ContentStream = await ResponseMessage.Content.ReadAsStreamAsync())
                     {
-                        string FolderPath = Path.GetDirectoryName(FilePath);
-                        if (!Directory.Exists(FolderPath))
-                        {
-                            Directory.CreateDirectory(FolderPath);
-                        }
-                        if (File.Exists(FilePath))
-                        {
-                            File.Delete(FilePath);
-                        }
-
                         byte[] Buffer = new byte[MaxChunkSize];
-                        long TotalNumberOfBytesRead = 0;
+                        long TotalNumberOfBytesRead = 0 + FileSize;
 
-                        using (FileStream FileStream = File.Create(FilePath))
+                        using (FileStream FileStream = File.Open(FilePath, FileMode.Append | FileMode.OpenOrCreate, FileAccess.Write))
                         {
                             int NumberOfBytesRead = await ContentStream.ReadAsync(Buffer, 0, Buffer.Length);
                             do
@@ -327,6 +338,14 @@ namespace unpaid
                                     ContentLength = ContentLength,
                                     BytesDownloaded = NumberOfBytesRead
                                 });
+
+                                if (Token.IsCancellationRequested)
+                                {
+                                    return new Response
+                                    {
+                                        Error = "Cancelled"
+                                    };
+                                }
 
                             } while ((NumberOfBytesRead = await ContentStream.ReadAsync(Buffer, 0, Buffer.Length)) != 0);
                         }

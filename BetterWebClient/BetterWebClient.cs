@@ -36,21 +36,45 @@ namespace unpaid
             public long TotalBytesDownloaded;
         }
 
-        public BetterWebClient()
+        public BetterWebClient(Uri ProxyAddress = null, string ProxyUsername = null, string ProxyPassword = null)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.DefaultConnectionLimit = Int32.MaxValue;
 
             Cookies = new CookieContainer();
-            Client = new HttpClient(new WebRequestHandler
+
+            WebRequestHandler RequestHandler = new WebRequestHandler
             {
                 CachePolicy = new RequestCachePolicy(RequestCacheLevel.BypassCache),
                 CookieContainer = Cookies,
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                UseCookies = true,
+                AllowAutoRedirect = true
+            };
 
-            Client.Timeout = Timeout.InfiniteTimeSpan;
+            if (ProxyAddress != null)
+            {
+                WebProxy Proxy = new WebProxy()
+                {
+                    Address = ProxyAddress,
+                    BypassProxyOnLocal = true,
+                    UseDefaultCredentials = false
+                };
+                if (!String.IsNullOrEmpty(ProxyUsername) && !String.IsNullOrEmpty(ProxyPassword))
+                {
+                    Proxy.Credentials = new NetworkCredential(ProxyUsername, ProxyPassword);
+                    RequestHandler.UseDefaultCredentials = false;
+                    RequestHandler.PreAuthenticate = true;
+                }
+                RequestHandler.Proxy = Proxy;
+                RequestHandler.UseProxy = true;
+            }
+
+            Client = new HttpClient(RequestHandler)
+            {
+                Timeout = Timeout.InfiniteTimeSpan
+            };
 
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en-AU,en-GB,en-US,en");

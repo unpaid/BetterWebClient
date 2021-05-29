@@ -184,7 +184,7 @@ namespace unpaid
 
         public Response DownloadFile(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
-            FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
+            FilePath = SanitizePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath));
             string FolderPath = Path.GetDirectoryName(FilePath);
             if (!Directory.Exists(FolderPath))
                 Directory.CreateDirectory(FolderPath);
@@ -286,7 +286,7 @@ namespace unpaid
 
         public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
-            FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
+            FilePath = SanitizePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath));
             string FolderPath = Path.GetDirectoryName(FilePath);
             if (!Directory.Exists(FolderPath))
                 Directory.CreateDirectory(FolderPath);
@@ -384,6 +384,22 @@ namespace unpaid
                     }
                 }
             }
+        }
+
+        private string SanitizePath(string FilePath)
+        {
+            string Root = Path.GetPathRoot(FilePath);
+            string FileName = Path.GetFileName(FilePath);
+            if (Path.IsPathRooted(FilePath))
+                FilePath = FilePath.Replace(Root, String.Empty);
+            FilePath = FilePath.Replace(FileName, String.Empty);
+            foreach (char Invalid in Path.GetInvalidPathChars())
+                FilePath = FilePath.Replace(Invalid.ToString(), String.Empty);
+            foreach (char Invalid in Path.GetInvalidFileNameChars())
+                FileName = FileName.Replace(Invalid.ToString(), String.Empty);
+            FilePath = Path.Combine(Root, FilePath, FileName);
+
+            return FilePath;
         }
     }
 }

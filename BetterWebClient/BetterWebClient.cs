@@ -388,6 +388,7 @@ namespace unpaid
 
         private string SanitizePath(string FilePath)
         {
+            FilePath = FilePath.Replace(":", String.Empty);
             string Root = Path.GetPathRoot(FilePath);
             string FileName = Path.GetFileName(FilePath);
             if (Path.IsPathRooted(FilePath))

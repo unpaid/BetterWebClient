@@ -21,9 +21,10 @@ namespace unpaid
         public class Response
         {
             public HttpStatusCode StatusCode;
+            public string ReasonPhrase;
             public Dictionary<string, string> Headers;
             public dynamic Data;
-            public string Error;
+            public bool Error;
         }
 
         public class DownloadProgress
@@ -115,20 +116,13 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = Client.SendAsync(RequestMessage).Result)
                 {
-                    if (!ResponseMessage.IsSuccessStatusCode)
-                    {
-                        return new Response
-                        {
-                            StatusCode = ResponseMessage.StatusCode,
-                            Error = ResponseMessage.ReasonPhrase
-                        };
-                    }
                     return new Response
                     {
                         StatusCode = ResponseMessage.StatusCode,
+                        ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
-                        Error = String.Empty
+                        Error = ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -163,20 +157,13 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = await Client.SendAsync(RequestMessage))
                 {
-                    if (!ResponseMessage.IsSuccessStatusCode)
-                    {
-                        return new Response
-                        {
-                            StatusCode = ResponseMessage.StatusCode,
-                            Error = ResponseMessage.ReasonPhrase
-                        };
-                    }
                     return new Response
                     {
                         StatusCode = ResponseMessage.StatusCode,
+                        ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
-                        Data = await ResponseMessage.Content.ReadAsStringAsync(),
-                        Error = String.Empty
+                        Data = ResponseMessage.Content.ReadAsStringAsync().Result,
+                        Error = ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -223,15 +210,6 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = Client.SendAsync(RequestMessage, HttpCompletionOption.ResponseHeadersRead).Result)
                 {
-                    if (!ResponseMessage.IsSuccessStatusCode)
-                    {
-                        return new Response
-                        {
-                            StatusCode = ResponseMessage.StatusCode,
-                            Error = ResponseMessage.ReasonPhrase
-                        };
-                    }
-
                     long ContentLength = 0;
                     if (ResponseMessage.Content.Headers.TryGetValues("Content-Length", out IEnumerable<string> Values))
                     {
@@ -265,7 +243,8 @@ namespace unpaid
                                 {
                                     return new Response
                                     {
-                                        Error = "Cancelled"
+                                        Error = true,
+                                        ReasonPhrase = "Cancelled"
                                     };
                                 }
 
@@ -275,9 +254,10 @@ namespace unpaid
                         return new Response
                         {
                             StatusCode = ResponseMessage.StatusCode,
+                            ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = String.Empty
+                            Error = ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }
@@ -325,15 +305,6 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = await Client.SendAsync(RequestMessage, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    if (!ResponseMessage.IsSuccessStatusCode)
-                    {
-                        return new Response
-                        {
-                            StatusCode = ResponseMessage.StatusCode,
-                            Error = ResponseMessage.ReasonPhrase
-                        };
-                    }
-
                     long ContentLength = 0;
                     if (ResponseMessage.Content.Headers.TryGetValues("Content-Length", out IEnumerable<String> Values))
                     {
@@ -367,7 +338,8 @@ namespace unpaid
                                 {
                                     return new Response
                                     {
-                                        Error = "Cancelled"
+                                        Error = true,
+                                        ReasonPhrase = "Cancelled"
                                     };
                                 }
 
@@ -377,9 +349,10 @@ namespace unpaid
                         return new Response
                         {
                             StatusCode = ResponseMessage.StatusCode,
+                            ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = String.Empty
+                            Error = ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }

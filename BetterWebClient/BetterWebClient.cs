@@ -122,7 +122,7 @@ namespace unpaid
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
-                        Error = ResponseMessage.IsSuccessStatusCode
+                        Error = !ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -163,7 +163,7 @@ namespace unpaid
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
-                        Error = ResponseMessage.IsSuccessStatusCode
+                        Error = !ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -257,7 +257,7 @@ namespace unpaid
                             ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = ResponseMessage.IsSuccessStatusCode
+                            Error = !ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }
@@ -352,7 +352,7 @@ namespace unpaid
                             ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = ResponseMessage.IsSuccessStatusCode
+                            Error = !ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }

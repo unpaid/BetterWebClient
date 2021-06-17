@@ -24,7 +24,7 @@ namespace unpaid
             public string ReasonPhrase;
             public Dictionary<string, string> Headers;
             public dynamic Data;
-            public bool Error;
+            public bool IsSuccessStatusCode;
         }
 
         public class DownloadProgress
@@ -122,7 +122,7 @@ namespace unpaid
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
-                        Error = !ResponseMessage.IsSuccessStatusCode
+                        IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -163,7 +163,7 @@ namespace unpaid
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         Data = ResponseMessage.Content.ReadAsStringAsync().Result,
-                        Error = !ResponseMessage.IsSuccessStatusCode
+                        IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
                 }
             }
@@ -243,7 +243,6 @@ namespace unpaid
                                 {
                                     return new Response
                                     {
-                                        Error = true,
                                         ReasonPhrase = "Cancelled"
                                     };
                                 }
@@ -257,7 +256,7 @@ namespace unpaid
                             ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = !ResponseMessage.IsSuccessStatusCode
+                            IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }
@@ -338,7 +337,6 @@ namespace unpaid
                                 {
                                     return new Response
                                     {
-                                        Error = true,
                                         ReasonPhrase = "Cancelled"
                                     };
                                 }
@@ -352,7 +350,7 @@ namespace unpaid
                             ReasonPhrase = ResponseMessage.ReasonPhrase,
                             Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                             Data = FilePath,
-                            Error = !ResponseMessage.IsSuccessStatusCode
+                            IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                         };
                     }
                 }

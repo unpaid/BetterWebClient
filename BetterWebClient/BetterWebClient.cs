@@ -116,14 +116,19 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = Client.SendAsync(RequestMessage).Result)
                 {
-                    return new Response
+                    Response response = new Response
                     {
                         StatusCode = ResponseMessage.StatusCode,
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
-                        Data = ResponseMessage.Content.ReadAsStringAsync().Result,
                         IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
+                    if (ResponseMessage.Content.Headers.ContentType.MediaType == "application/octet-stream")
+                        response.Data = ResponseMessage.Content.ReadAsByteArrayAsync().Result;
+                    else
+                        response.Data = ResponseMessage.Content.ReadAsStringAsync().Result;
+
+                    return response;
                 }
             }
         }
@@ -157,14 +162,19 @@ namespace unpaid
 
                 using (HttpResponseMessage ResponseMessage = await Client.SendAsync(RequestMessage))
                 {
-                    return new Response
+                    Response response = new Response
                     {
                         StatusCode = ResponseMessage.StatusCode,
                         ReasonPhrase = ResponseMessage.ReasonPhrase,
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
-                        Data = ResponseMessage.Content.ReadAsStringAsync().Result,
                         IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
+                    if (ResponseMessage.Content.Headers.ContentType.MediaType == "application/octet-stream")
+                        response.Data = await ResponseMessage.Content.ReadAsByteArrayAsync();
+                    else
+                        response.Data = await ResponseMessage.Content.ReadAsStringAsync();
+
+                    return response;
                 }
             }
         }

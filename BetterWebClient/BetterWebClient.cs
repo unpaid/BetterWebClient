@@ -369,11 +369,11 @@ namespace unpaid
 
         private string SanitizePath(string FilePath)
         {
-            FilePath = FilePath.Replace(":", String.Empty);
             string Root = Path.GetPathRoot(FilePath);
             string FileName = Path.GetFileName(FilePath);
             if (Path.IsPathRooted(FilePath))
                 FilePath = FilePath.Replace(Root, String.Empty);
+            FilePath = FilePath.Replace(":", String.Empty);
             FilePath = FilePath.Replace(FileName, String.Empty);
             foreach (char Invalid in Path.GetInvalidPathChars())
                 FilePath = FilePath.Replace(Invalid.ToString(), String.Empty);

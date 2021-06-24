@@ -123,7 +123,7 @@ namespace unpaid
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
-                    if (ResponseMessage.Content.Headers.ContentType.MediaType == "application/octet-stream")
+                    if (ResponseMessage.Content.Headers.ContentType.MediaType.Contains("octet-stream"))
                         response.Data = ResponseMessage.Content.ReadAsByteArrayAsync().Result;
                     else
                         response.Data = ResponseMessage.Content.ReadAsStringAsync().Result;
@@ -169,7 +169,7 @@ namespace unpaid
                         Headers = ResponseMessage.Headers.Concat(ResponseMessage.Content.Headers).ToDictionary(x => x.Key, x => String.Join(", ", x.Value).TrimEnd(' ')),
                         IsSuccessStatusCode = ResponseMessage.IsSuccessStatusCode
                     };
-                    if (ResponseMessage.Content.Headers.ContentType.MediaType == "application/octet-stream")
+                    if (ResponseMessage.Content.Headers.ContentType.MediaType.Contains("octet-stream"))
                         response.Data = await ResponseMessage.Content.ReadAsByteArrayAsync();
                     else
                         response.Data = await ResponseMessage.Content.ReadAsStringAsync();

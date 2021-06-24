@@ -74,7 +74,7 @@ namespace unpaid
 
             Client = new HttpClient(RequestHandler)
             {
-                Timeout = TimeSpan.FromSeconds(60)
+                Timeout = TimeSpan.FromMinutes(5)
             };
 
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");

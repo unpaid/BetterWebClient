@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -126,7 +127,7 @@ namespace unpaid
                     if (ResponseMessage.Content.Headers.ContentType.MediaType.Contains("octet-stream"))
                         response.Data = ResponseMessage.Content.ReadAsByteArrayAsync().Result;
                     else
-                        response.Data = ResponseMessage.Content.ReadAsStringAsync().Result;
+                        response.Data = Encoding.UTF8.GetString(ResponseMessage.Content.ReadAsByteArrayAsync().Result);
 
                     return response;
                 }
@@ -172,7 +173,7 @@ namespace unpaid
                     if (ResponseMessage.Content.Headers.ContentType.MediaType.Contains("octet-stream"))
                         response.Data = await ResponseMessage.Content.ReadAsByteArrayAsync();
                     else
-                        response.Data = await ResponseMessage.Content.ReadAsStringAsync();
+                        response.Data = Encoding.UTF8.GetString(await ResponseMessage.Content.ReadAsByteArrayAsync());
 
                     return response;
                 }

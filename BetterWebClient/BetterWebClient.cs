@@ -85,7 +85,7 @@ namespace unpaid
 
         public void AddCookie(string Name, string Value, string Domain)
         {
-            Cookies.Add(new Cookie(Name, Value, String.Empty, Domain));
+            Cookies.Add(new Cookie(Name, Value, "/", Domain));
         }
 
         public Response Request(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)

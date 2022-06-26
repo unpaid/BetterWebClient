@@ -139,7 +139,12 @@ namespace unpaid
                     if (SetCookies && ResponseMessage.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> setCookies))
                     {
                         foreach (string setCookie in setCookies)
-                            Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                        {
+                            if (Regex.IsMatch(setCookie, "domain=([^;]*)"))
+                                Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                            else
+                                Cookies.SetCookies(new Uri($"{RequestMessage.RequestUri.Scheme}://{RequestMessage.RequestUri.Host}"), setCookie);
+                        }
                     }
 
                     return response;
@@ -191,7 +196,12 @@ namespace unpaid
                     if (SetCookies && ResponseMessage.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> setCookies))
                     {
                         foreach (string setCookie in setCookies)
-                            Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                        {
+                            if (Regex.IsMatch(setCookie, "domain=([^;]*)"))
+                                Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                            else
+                                Cookies.SetCookies(new Uri($"{RequestMessage.RequestUri.Scheme}://{RequestMessage.RequestUri.Host}"), setCookie);
+                        }
                     }
 
                     return response;

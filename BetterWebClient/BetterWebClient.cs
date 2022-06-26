@@ -7,6 +7,7 @@ using System.Net.Cache;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace unpaid
         private CookieContainer Cookies;
         // 1 Mebibyte Max Chunk Size
         private readonly int MaxChunkSize = (int)Math.Pow(2, 20);
+        public bool SetCookies;
 
         public class Response
         {
@@ -134,6 +136,12 @@ namespace unpaid
                     else
                         response.Data = Encoding.UTF8.GetString(ResponseMessage.Content.ReadAsByteArrayAsync().Result);
 
+                    if (SetCookies && ResponseMessage.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> setCookies))
+                    {
+                        foreach (string setCookie in setCookies)
+                            Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                    }
+
                     return response;
                 }
             }
@@ -179,6 +187,12 @@ namespace unpaid
                         response.Data = await ResponseMessage.Content.ReadAsByteArrayAsync();
                     else
                         response.Data = Encoding.UTF8.GetString(await ResponseMessage.Content.ReadAsByteArrayAsync());
+
+                    if (SetCookies && ResponseMessage.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> setCookies))
+                    {
+                        foreach (string setCookie in setCookies)
+                            Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
+                    }
 
                     return response;
                 }

@@ -140,10 +140,11 @@ namespace unpaid
                     {
                         foreach (string setCookie in setCookies)
                         {
-                            if (Regex.IsMatch(setCookie, "domain=([^;]*)"))
-                                Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
-                            else
-                                Cookies.SetCookies(new Uri($"{RequestMessage.RequestUri.Scheme}://{RequestMessage.RequestUri.Host}"), setCookie);
+                            string Name   = Regex.Match(setCookie, "^[^=]*").Value;
+                            string Value  = Regex.Match(setCookie, $"^{Name}=([^;]*)").Groups[1].Value;
+                            string Path   = Regex.Match(setCookie, "path=([^;]*)").Groups[1].Value;
+                            string Domain = Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value;
+                            Cookies.Add(new Cookie(Name, Value, Path, String.IsNullOrEmpty(Domain) ? RequestMessage.RequestUri.Host : Domain));
                         }
                     }
 
@@ -197,10 +198,11 @@ namespace unpaid
                     {
                         foreach (string setCookie in setCookies)
                         {
-                            if (Regex.IsMatch(setCookie, "domain=([^;]*)"))
-                                Cookies.SetCookies(new Uri(Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value), setCookie);
-                            else
-                                Cookies.SetCookies(new Uri($"{RequestMessage.RequestUri.Scheme}://{RequestMessage.RequestUri.Host}"), setCookie);
+                            string Name = Regex.Match(setCookie, "^[^=]*").Value;
+                            string Value = Regex.Match(setCookie, $"^{Name}=([^;]*)").Groups[1].Value;
+                            string Path = Regex.Match(setCookie, "path=([^;]*)").Groups[1].Value;
+                            string Domain = Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value;
+                            Cookies.Add(new Cookie(Name, Value, Path, String.IsNullOrEmpty(Domain) ? RequestMessage.RequestUri.Host : Domain));
                         }
                     }
 

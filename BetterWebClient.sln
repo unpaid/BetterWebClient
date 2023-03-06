@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2026
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterWebClient", "BetterWebClient\BetterWebClient.csproj", "{F9B7C208-7E1E-4212-B37B-04C3C2584DBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterWebClient", "BetterWebClient\BetterWebClient.csproj", "{6983BDF9-6339-481F-9D6F-9518AA4A495F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F9B7C208-7E1E-4212-B37B-04C3C2584DBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9B7C208-7E1E-4212-B37B-04C3C2584DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9B7C208-7E1E-4212-B37B-04C3C2584DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9B7C208-7E1E-4212-B37B-04C3C2584DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6983BDF9-6339-481F-9D6F-9518AA4A495F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6983BDF9-6339-481F-9D6F-9518AA4A495F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6983BDF9-6339-481F-9D6F-9518AA4A495F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6983BDF9-6339-481F-9D6F-9518AA4A495F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F243BAEC-3D50-43E6-A2D4-DB0B367263BF}
+		SolutionGuid = {7022E41D-E2A9-473C-A149-D1343CA5A34D}
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -48,13 +47,12 @@ namespace unpaid
 
             Cookies = new CookieContainer();
 
-            WebRequestHandler RequestHandler = new WebRequestHandler
+            HttpClientHandler RequestHandler = new HttpClientHandler
             {
-                CachePolicy = new RequestCachePolicy(RequestCacheLevel.BypassCache),
-                CookieContainer = Cookies,
+                AllowAutoRedirect = true,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseCookies = true,
-                AllowAutoRedirect = true
+                CookieContainer = Cookies,
+                UseCookies = true
             };
 
             if (ProxyAddress != null)
@@ -77,12 +75,13 @@ namespace unpaid
 
             Client = new HttpClient(RequestHandler)
             {
-                Timeout = TimeSpan.FromMinutes(5)
+                Timeout = TimeSpan.FromMinutes(1)
             };
 
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en-AU,en-GB,en-US,en");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36");
+            Client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }
 
         public void AddCookie(string Name, string Value, string Domain)
@@ -198,9 +197,9 @@ namespace unpaid
                     {
                         foreach (string setCookie in setCookies)
                         {
-                            string Name = Regex.Match(setCookie, "^[^=]*").Value;
-                            string Value = Regex.Match(setCookie, $"^{Name}=([^;]*)").Groups[1].Value;
-                            string Path = Regex.Match(setCookie, "path=([^;]*)").Groups[1].Value;
+                            string Name   = Regex.Match(setCookie, "^[^=]*").Value;
+                            string Value  = Regex.Match(setCookie, $"^{Name}=([^;]*)").Groups[1].Value;
+                            string Path   = Regex.Match(setCookie, "path=([^;]*)").Groups[1].Value;
                             string Domain = Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value;
                             Cookies.Add(new Cookie(Name, Value, Path, String.IsNullOrEmpty(Domain) ? RequestMessage.RequestUri.Host : Domain));
                         }

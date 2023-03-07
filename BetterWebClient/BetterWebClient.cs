@@ -96,13 +96,17 @@ namespace unpaid
 
         public Response Request(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
         {
+            if (Params != null)
+            {
+                URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
+            }
+
+            return Request(new Uri(URL, UriKind.Absolute), Method, Data, Headers);
+        }
+        public Response Request(Uri URL, HttpMethod Method, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
+        {
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Params != null)
-                {
-                    URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
-                }
-
                 if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
@@ -111,7 +115,7 @@ namespace unpaid
                     }
                 }
 
-                RequestMessage.RequestUri = new Uri(URL, UriKind.Absolute);
+                RequestMessage.RequestUri = URL;
 
                 if (Headers != null)
                 {
@@ -154,13 +158,17 @@ namespace unpaid
 
         public async Task<Response> RequestAsync(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
         {
+            if (Params != null)
+            {
+                URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
+            }
+
+            return await RequestAsync(new Uri(URL, UriKind.Absolute), Method, Data, Headers);
+        }
+        public async Task<Response> RequestAsync(Uri URL, HttpMethod Method, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
+        {
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Params != null)
-                {
-                    URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
-                }
-
                 if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
@@ -169,7 +177,7 @@ namespace unpaid
                     }
                 }
 
-                RequestMessage.RequestUri = new Uri(URL, UriKind.Absolute);
+                RequestMessage.RequestUri = URL;
 
                 if (Headers != null)
                 {
@@ -212,6 +220,15 @@ namespace unpaid
 
         public Response DownloadFile(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
+            if (Params != null)
+            {
+                URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
+            }
+
+            return DownloadFile(new Uri(URL, UriKind.Absolute), Method, FilePath, Data, Headers, ProgressCallback, Token);
+        }
+        public Response DownloadFile(Uri URL, HttpMethod Method, string FilePath, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
+        {
             FilePath = SanitizePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath));
             string FolderPath = Path.GetDirectoryName(FilePath);
             if (!Directory.Exists(FolderPath))
@@ -219,11 +236,6 @@ namespace unpaid
 
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Params != null)
-                {
-                    URL = $"{URL}?{new FormUrlEncodedContent(Params).ReadAsStringAsync().Result}";
-                }
-
                 if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
@@ -232,7 +244,7 @@ namespace unpaid
                     }
                 }
 
-                RequestMessage.RequestUri = new Uri(URL, UriKind.Absolute);
+                RequestMessage.RequestUri = URL;
 
                 if (Headers != null)
                 {
@@ -273,7 +285,7 @@ namespace unpaid
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
                                 ProgressCallback?.Invoke(new DownloadProgress
                                 {
-                                    DownloadURL = URL,
+                                    DownloadURL = URL.OriginalString,
                                     DownloadPath = FilePath,
                                     TotalBytesDownloaded = TotalNumberOfBytesRead,
                                     ContentLength = ContentLength,
@@ -306,6 +318,15 @@ namespace unpaid
 
         public async Task<Response> DownloadFileAsync(string URL, HttpMethod Method, string FilePath, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
         {
+            if (Params != null)
+            {
+                URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
+            }
+
+            return await DownloadFileAsync(new Uri(URL, UriKind.Absolute), Method, FilePath, Data, Headers, ProgressCallback, Token);
+        }
+        public async Task<Response> DownloadFileAsync(Uri URL, HttpMethod Method, string FilePath, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null, Action<DownloadProgress> ProgressCallback = null, CancellationToken Token = default(CancellationToken))
+        {
             FilePath = SanitizePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath));
             string FolderPath = Path.GetDirectoryName(FilePath);
             if (!Directory.Exists(FolderPath))
@@ -313,11 +334,6 @@ namespace unpaid
 
             using (HttpRequestMessage RequestMessage = new HttpRequestMessage() { Method = Method })
             {
-                if (Params != null)
-                {
-                    URL = $"{URL}?{await new FormUrlEncodedContent(Params).ReadAsStringAsync()}";
-                }
-
                 if (Method == HttpMethod.Post)
                 {
                     if (Data != null)
@@ -326,7 +342,7 @@ namespace unpaid
                     }
                 }
 
-                RequestMessage.RequestUri = new Uri(URL, UriKind.Absolute);
+                RequestMessage.RequestUri = URL;
 
                 if (Headers != null)
                 {
@@ -367,7 +383,7 @@ namespace unpaid
                                 TotalNumberOfBytesRead += NumberOfBytesRead;
                                 ProgressCallback?.Invoke(new DownloadProgress
                                 {
-                                    DownloadURL = URL,
+                                    DownloadURL = URL.OriginalString,
                                     DownloadPath = FilePath,
                                     TotalBytesDownloaded = TotalNumberOfBytesRead,
                                     ContentLength = ContentLength,

@@ -89,11 +89,6 @@ namespace unpaid
             Cookies.Add(new Cookie(Name, Value, "/", Domain));
         }
 
-        public void ClearCookies()
-        {
-            Cookies = new CookieContainer();
-        }
-
         public Response Request(string URL, HttpMethod Method, IEnumerable<KeyValuePair<string, string>> Params = null, HttpContent Data = null, IEnumerable<KeyValuePair<string, string>> Headers = null)
         {
             if (Params != null)

@@ -41,7 +41,7 @@ namespace unpaid
 
         public BetterWebClient(Uri ProxyAddress = null, string ProxyUsername = null, string ProxyPassword = null)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.DefaultConnectionLimit = Int32.MaxValue;
 

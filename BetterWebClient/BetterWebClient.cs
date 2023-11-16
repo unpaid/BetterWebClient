@@ -19,6 +19,8 @@ namespace unpaid
         // 1 Mebibyte Max Chunk Size
         private readonly int MaxChunkSize = (int)Math.Pow(2, 20);
         public bool SetCookies;
+        public bool FollowRedirects;
+        private readonly HttpMethod RedirectMethod = HttpMethod.Get;
 
         public class Response
         {
@@ -49,7 +51,7 @@ namespace unpaid
 
             HttpClientHandler RequestHandler = new HttpClientHandler
             {
-                AllowAutoRedirect = true,
+                AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
                 CookieContainer = Cookies,
                 UseCookies = true
@@ -146,6 +148,22 @@ namespace unpaid
                         }
                     }
 
+                    if (FollowRedirects && IsRedirect(ResponseMessage.StatusCode) && ResponseMessage.Headers.Location != null)
+                    {
+                        Uri Location = ResponseMessage.Headers.Location;
+                        if (!Location.IsAbsoluteUri)
+                            Location = new Uri(URL, Location);
+
+#if (NET5_0_OR_GREATER || NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1)
+                        if (ResponseMessage.StatusCode == HttpStatusCode.TemporaryRedirect || ResponseMessage.StatusCode == HttpStatusCode.PermanentRedirect)
+#else
+                        if (ResponseMessage.StatusCode == HttpStatusCode.TemporaryRedirect)
+#endif
+                            response = Request(Location, Method, null, null);
+                        else
+                            response = Request(Location, RedirectMethod, null, null);
+                    }
+
                     return response;
                 }
             }
@@ -206,6 +224,22 @@ namespace unpaid
                             string Domain = Regex.Match(setCookie, "domain=([^;]*)").Groups[1].Value;
                             Cookies.Add(new Cookie(Name, Value, Path, String.IsNullOrEmpty(Domain) ? RequestMessage.RequestUri.Host : Domain));
                         }
+                    }
+
+                    if (FollowRedirects && IsRedirect(ResponseMessage.StatusCode) && ResponseMessage.Headers.Location != null)
+                    {
+                        Uri Location = ResponseMessage.Headers.Location;
+                        if (!Location.IsAbsoluteUri)
+                            Location = new Uri(URL, Location);
+
+#if (NET5_0_OR_GREATER || NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1)
+                        if (ResponseMessage.StatusCode == HttpStatusCode.TemporaryRedirect || ResponseMessage.StatusCode == HttpStatusCode.PermanentRedirect)
+#else
+                        if (ResponseMessage.StatusCode == HttpStatusCode.TemporaryRedirect)
+#endif
+                            response = await RequestAsync(Location, Method, null, null);
+                        else
+                            response = await RequestAsync(Location, RedirectMethod, null, null);
                     }
 
                     return response;
@@ -406,6 +440,30 @@ namespace unpaid
                         };
                     }
                 }
+            }
+        }
+
+
+        public static bool IsRedirect(HttpStatusCode Code)
+        {
+            switch (Code)
+            {
+              //case HttpStatusCode.Ambiguous:
+                case HttpStatusCode.MultipleChoices:
+              //case HttpStatusCode.Moved:
+                case HttpStatusCode.MovedPermanently:
+                case HttpStatusCode.Found:
+              //case HttpStatusCode.Redirect:
+              //case HttpStatusCode.RedirectMethod:
+                case HttpStatusCode.SeeOther:
+              //case HttpStatusCode.RedirectKeepVerb:
+                case HttpStatusCode.TemporaryRedirect:
+#if (NET5_0_OR_GREATER || NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1)
+                case HttpStatusCode.PermanentRedirect:
+#endif
+                    return true;
+                default:
+                    return false;
             }
         }
 
